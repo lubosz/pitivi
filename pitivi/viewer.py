@@ -898,10 +898,19 @@ class ViewerWidget(Gtk.DrawingArea, Loggable):
         This is called when creating the widget to get the window ID.
         """
         Gtk.DrawingArea.do_realize(self)
+        window = self.get_property('window')
+
         if platform.system() == 'Windows':
             self.window_xid = self.props.window.handle
+        elif "X11" in window.__format__(""):
+            #We have a X Window.
+            self.window_xid = window.get_xid()
+        elif "Wayland" in window.__format__(""):
+            #We have a Wayland Window.
+            self.window_xid = 0
         else:
-            self.window_xid = self.get_property('window').get_xid()
+            #Unknown Window System.
+            self.window_xid = 0
 
     def button_release_event(self, widget, event):
         if event.button == 1:
