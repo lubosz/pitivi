@@ -21,7 +21,7 @@
 # Boston, MA 02110-1301, USA.
 
 from datetime import datetime, timedelta
-from gi.repository import Clutter, Gst, GLib, GdkPixbuf, Cogl, GES
+from gi.repository import Clutter, Gst, GLib, GdkPixbuf, Cogl, GES, Gdk
 from random import randrange
 import cairo
 import hashlib
@@ -623,7 +623,9 @@ class ThumbnailCache(Loggable):
         raise KeyError(key)
 
     def __setitem__(self, key, value):
-        success, jpeg = value.save_to_bufferv("jpeg", ["quality", None], ["90"])
+        pixbuf = Gdk.pixbuf_get_from_surface(value, 0, 0, value.get_width(), value.get_height())
+
+        success, jpeg = pixbuf.save_to_bufferv("jpeg", ["quality", None], ["90"])
         if not success:
             self.warning("JPEG compression failed")
             return
