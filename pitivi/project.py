@@ -662,7 +662,11 @@ class Project(Loggable, GES.Project):
     def set_video_restriction_value(self, name, value):
         if self.video_profile.get_restriction()[0][name] != value and value:
             restriction = self.video_profile.get_restriction().copy_nth(0)
-            restriction[0][name] = value
+            try:
+                restriction[0][name] = value
+            except RuntimeError:
+                print("RuntimeError:", type(value), name, "cannot be set:", value)
+                restriction[0][name] = 1
             self.video_profile.set_restriction(restriction)
             return True
         return False
