@@ -39,15 +39,18 @@ AC_MSG_NOTICE(Storing configuration files in $SYSCONFDIR)
 AS_AC_EXPAND(LOCALSTATEDIR, $localstatedir)
 AC_MSG_NOTICE(Using localstatedir $LOCALSTATEDIR)
 
-dnl python checks (you can change the required python version bellow)
-AM_PATH_PYTHON(3.3.0)
-PY_PREFIX=`$PYTHON -c 'import sys ; print (sys.prefix)'`
-PYTHON_LIBS="-lpython{$PYTHON_VERSION}m"
-PYTHON_CFLAGS="-I$PY_PREFIX/include/python${PYTHON_VERSION}m"
-AC_SUBST([PYTHON_LIBS])
-AC_SUBST([PYTHON_CFLAGS])
+# python checks
 
-AX_PYTHON_DEVEL
+# you can change the required python version bellow
+AM_PATH_PYTHON([3])
+
+AM_CHECK_PYTHON_HEADERS(, AC_MSG_ERROR([Python headers not found]))
+
+# - 'SO' for PyPy, CPython 2.7-3.2
+# - 'EXT_SUFFIX' for CPython3.3+ (http://bugs.python.org/issue16754)
+# - fallback to '.so'
+PYTHON_SO=`$PYTHON -c "import distutils.sysconfig, sys; get = distutils.sysconfig.get_config_var; sys.stdout.write(get('EXT_SUFFIX') or get('SO') or '.so');"`
+AC_SUBST(PYTHON_SO)
 
 dnl ALL_LINGUAS="fr"
 GETTEXT_PACKAGE="pitivi"
