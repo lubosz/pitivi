@@ -751,8 +751,6 @@ class AudioPreviewer(Clutter.Actor, PreviewGenerator, Zoomable, Loggable):
         self.canvas.connect("draw", self._drawContentCb)
         self.canvas.invalidate()
 
-        self._callback_id = 0
-
     def startLevelsDiscoveryWhenIdle(self):
         self.debug('Waiting for UI to become idle for: %s', filename_from_uri(self._uri))
         GLib.idle_add(self._startLevelsDiscovery, priority=GLib.PRIORITY_LOW)
@@ -798,11 +796,7 @@ class AudioPreviewer(Clutter.Actor, PreviewGenerator, Zoomable, Loggable):
             self.log('Checking if the waveform for "%s" needs to be redrawn' % self._uri)
             if datetime.now() - self.lastUpdate > WAVEFORM_UPDATE_INTERVAL:
                 self.lastUpdate = datetime.now()
-                self._compute_geometry()
-            else:
-                if self._callback_id:
-                    GLib.source_remove(self._callback_id)
-                self._callback_id = GLib.timeout_add(500, self._compute_geometry)
+            self._compute_geometry()
 
     def _compute_geometry(self):
         self.log("Computing the clip's geometry for waveforms")
