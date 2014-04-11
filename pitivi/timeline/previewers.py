@@ -537,7 +537,6 @@ class Thumbnail(Clutter.Actor):
         self.props.content = image
         self.width = width
         self.height = height
-        #self.set_background_color(Clutter.Color.new(0, 100, 150, 100))
         self.set_opacity(0)
         self.set_size(self.width, self.height)
         self.has_pixel_data = False
@@ -619,7 +618,7 @@ class ThumbnailCache(Loggable):
             self.warning("JPEG compression failed")
             return
         blob = sqlite3.Binary(jpeg)
-        #Replace if the key already existed
+        # Replace if the key already existed
         self._cur.execute("DELETE FROM Thumbs WHERE  time=?", (key,))
         self._cur.execute("INSERT INTO Thumbs VALUES (?,?)", (key, blob,))
 
