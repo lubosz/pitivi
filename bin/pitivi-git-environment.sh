@@ -385,7 +385,7 @@ if [ "$ready_to_run" != "1" ]; then
         if [ $? -ne 0 ]; then
             echo "Could not run checkout $GST_RELEASE_TAG for $m ; result: $?"
             echo 'Trying "master" instead...'
-            git checkout master && git pull --rebase
+            git checkout master && git pull --rebase origin master
             if [ $? -ne 0 ]; then
                 echo "Checkout and rebase failed, aborting"
                 exit 1
