@@ -7,7 +7,7 @@ AC_DEFUN([AM_CHECK_PYTHON_HEADERS],
     # deduce PYTHON_INCLUDES
     py_prefix=`$PYTHON -c "import sys; print(sys.prefix)"`
     py_exec_prefix=`$PYTHON -c "import sys; print(sys.exec_prefix)"`
-    if $PYTHON-config --help 1>/dev/null 2>/dev/null; then
+    if which $PYTHON-config; then
       PYTHON_INCLUDES=`$PYTHON-config --includes 2>/dev/null`
     else
       PYTHON_INCLUDES="-I${py_prefix}/include/python${PYTHON_VERSION}"
