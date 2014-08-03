@@ -26,7 +26,7 @@ Every GES element which name could be mistaken with a UI element
 is prefixed with a little b, example : bTimeline
 """
 
-import cairo
+#import cairo
 import math
 import os
 from datetime import datetime

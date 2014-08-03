@@ -26,7 +26,7 @@ from gi.repository import Gdk
 from gi.repository import Gst
 from gi.repository import GObject
 from gi.repository import GES
-import cairo
+#import cairo
 
 from gettext import gettext as _
 from time import time

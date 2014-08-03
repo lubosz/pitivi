@@ -26,7 +26,7 @@ UI constants and various functions and classes that help with UI drawing.
 """
 
 
-import cairo
+#import cairo
 import decimal
 import os
 import urllib.request
@@ -107,9 +107,13 @@ def _get_font(font_spec, default):
     face = raw_font.rsplit(" ", 1)[0]
     return cairo.ToyFontFace(face)
 
-NORMAL_FONT = _get_font("font-name", "Cantarell")
-DOCUMENT_FONT = _get_font("document-font-name", "Sans")
-MONOSPACE_FONT = _get_font("monospace-font-name", "Monospace")
+#NORMAL_FONT = _get_font("font-name", "Cantarell")
+#DOCUMENT_FONT = _get_font("document-font-name", "Sans")
+#MONOSPACE_FONT = _get_font("monospace-font-name", "Monospace")
+
+NORMAL_FONT = None
+DOCUMENT_FONT = None
+MONOSPACE_FONT = None
 
 
 # ---------------------- ARGB color helper-------------------------------------#

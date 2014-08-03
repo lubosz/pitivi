@@ -23,7 +23,7 @@
 from datetime import datetime, timedelta
 from gi.repository import Clutter, Gst, GLib, GdkPixbuf, Cogl, GES
 from random import randrange
-import cairo
+#import cairo
 import numpy
 import os
 import pickle

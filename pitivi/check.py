@@ -173,7 +173,7 @@ class CairoDependency(ClassicDependency):
         return _string_to_list(module.cairo_version_string())
 
 
-HARD_DEPENDENCIES = (CairoDependency("1.10.0"),
+HARD_DEPENDENCIES = (#CairoDependency("1.10.0"),
                      GtkOrClutterDependency("Clutter", "1.12.0"),
                      GtkOrClutterDependency("ClutterGst", "2.0.0"),
                      GstDependency("Gst", "1.2.0"),
