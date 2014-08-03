@@ -21,7 +21,7 @@
 import datetime
 import multiprocessing
 import os
-import resource
+#import resource
 
 from pitivi.check import NOTIFY_SOFT_DEPENDENCY
 from pitivi.configure import APPNAME

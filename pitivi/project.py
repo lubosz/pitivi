@@ -35,7 +35,7 @@ import tarfile
 from time import time
 from datetime import datetime
 from gettext import gettext as _
-from pwd import getpwuid
+#from pwd import getpwuid
 
 from pitivi.undo.undo import UndoableAction
 from pitivi.configure import get_ui_dir
