@@ -24,7 +24,8 @@
 import os
 
 from gi.repository import GObject
-from gi.repository import GdkX11
+#from gi.repository import GdkX11
+from gi.repository import GdkWin32
 from gi.repository import Gio
 from gi.repository import Gtk
 

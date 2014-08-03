@@ -271,5 +271,9 @@ def initialize_modules():
 
     # This is required because of:
     # https://bugzilla.gnome.org/show_bug.cgi?id=656314
-    from gi.repository import GdkX11
-    GdkX11  # noop
+    try:
+        from gi.repository import GdkX11
+        GdkX11  # noop
+    except:
+        from gi.repository import GdkWin32
+        GdkWin32  # noop    
