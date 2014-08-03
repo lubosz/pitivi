@@ -141,6 +141,11 @@ def create_stock_icons():
     }
     factory = Gtk.IconFactory()
     pmdir = get_pixmap_dir()
+    
+    return
+
+    #AttributeError: type object 'Pixbuf' has no attribute 'new_from_file'
+
     for stockid, path in pixmaps.items():
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(pmdir, path))
         iconset = Gtk.IconSet.new_from_pixbuf(pixbuf)

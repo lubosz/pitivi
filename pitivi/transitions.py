@@ -56,7 +56,9 @@ class TransitionsListWidget(Signallable, Gtk.VBox, Loggable):
         self.element = None
         self._pixdir = os.path.join(get_pixmap_dir(), "transitions")
         icon_theme = Gtk.IconTheme.get_default()
-        self._question_icon = icon_theme.load_icon("dialog-question", 48, 0)
+
+        #GLib.Error: gtk-icon-theme-error-quark: Icon 'dialog-question' not present in theme (0)
+        #self._question_icon = icon_theme.load_icon("dialog-question", 48, 0)
 
         #Tooltip handling
         self._current_transition_name = None
