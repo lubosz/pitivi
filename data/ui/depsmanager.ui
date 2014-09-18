@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.1 -->
 <interface>
-  <requires lib="gtk+" version="3.4"/>
+  <requires lib="gtk+" version="3.10"/>
   <object class="GtkDialog" id="window1">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -33,10 +34,10 @@
             <child>
               <object class="GtkButton" id="install_btn">
                 <property name="label" translatable="yes">Install</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <signal name="clicked" handler="_onInstallButtonClickedCb" swapped="no"/>
               </object>
               <packing>
@@ -55,9 +56,9 @@
         </child>
         <child>
           <object class="GtkBox" id="box1">
-            <property name="orientation">vertical</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
             <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="label1">
@@ -83,7 +84,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="no">label</property>
+                    <property name="label">label</property>
                     <property name="wrap">True</property>
                   </object>
                 </child>
