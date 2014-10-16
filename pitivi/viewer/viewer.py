@@ -1,6 +1,6 @@
 # Pitivi video editor
 #
-#       pitivi/viewer.py
+#       pitivi/viewer/viewer.py
 #
 # Copyright (c) 2005, Edward Hervey <bilboed@bilboed.com>
 #
