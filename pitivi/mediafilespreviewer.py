@@ -36,7 +36,7 @@ from pitivi.utils.loggable import Loggable
 from pitivi.utils.misc import uri_is_valid
 from pitivi.utils.pipeline import AssetPipeline
 from pitivi.utils.ui import beautify_length, beautify_stream, SPACING
-from pitivi.viewer import ViewerWidget
+from pitivi.viewer.viewer import ViewerWidget
 
 PREVIEW_WIDTH = 250
 PREVIEW_HEIGHT = 100

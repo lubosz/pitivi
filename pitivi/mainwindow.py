@@ -49,7 +49,7 @@ from pitivi.utils.loggable import Loggable
 from pitivi.utils.misc import show_user_manual, path_from_uri
 from pitivi.utils.ui import info_name, beautify_time_delta, SPACING, \
     beautify_length
-from pitivi.viewer import ViewerContainer
+from pitivi.viewer.viewer import ViewerContainer
 
 
 GlobalSettings.addConfigSection("main-window")
