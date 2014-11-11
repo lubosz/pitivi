@@ -60,15 +60,16 @@ class Scene():
     def set_cursor(self, type):
         display = Gdk.Display.get_default()
         cursor = Gdk.Cursor.new_for_display(display, type)
-        #self.window.get_window().set_cursor(cursor)
+        # self.window.get_window().set_cursor(cursor)
 
     def reshape(self, sink, context, width, height):
-        self.width, self.height = width, height
-        if not self.init:
-            self.init_gl(context)
-            self.init = True
-        glViewport(0, 0, width, height)
-        return True
+        if width != 0 and height != 0:
+            self.width, self.height = width, height
+            if not self.init:
+                self.init_gl(context)
+                self.init = True
+            glViewport(0, 0, width, height)
+            return True
 
     def init_gl(self, context):
         glClearColor(0.0, 0.0, 0.0, 0.0)
