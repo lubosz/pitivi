@@ -75,6 +75,7 @@ class CairoGLSink(GstOverlaySink):
         self.connect("button-release-event", self.scene.on_release)
         self.connect("motion-notify-event", self.scene.on_motion)
         self.connect("scroll-event", self.scene.on_scroll)
+        self.connect("leave-notify-event", self.scene.leave)
 
         self.scene.app = app
         self.scene.slider_box = app.sliderbox

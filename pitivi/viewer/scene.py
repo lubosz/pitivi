@@ -62,6 +62,9 @@ class Scene():
         cursor = Gdk.Cursor.new_for_display(display, type)
         self.app.gui.get_window().set_cursor(cursor)
 
+    def leave(self, sink, event):
+        self.set_cursor(Gdk.CursorType.ARROW)
+
     def reshape(self, sink, context, width, height):
         if width != 0 and height != 0:
             self.width, self.height = width, height
