@@ -233,7 +233,11 @@ class TransformScene(Scene):
             handle.reposition(matrix, self.aspect())
             handle.size = size
 
-        self.app.project_manager.current_project.pipeline.flushSeek()
+        pipeline = self.app.project_manager.current_project.pipeline
+
+        from gi.repository import Gst
+        if pipeline.get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.PAUSED:
+            pipeline.flushSeek()
 
     def draw(self, sink, context, video_texture, w, h):
         if not self.init:
