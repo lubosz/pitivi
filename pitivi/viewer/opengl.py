@@ -104,8 +104,8 @@ class Shader():
     def __init__(self, context, vert_name, frag_name):
         self.shader = GstGL.GLShader.new(context)
 
-        vert = open("shaders/%s" % vert_name).read()
-        frag = open("shaders/%s" % frag_name).read()
+        vert = open("data/shaders/%s" % vert_name).read()
+        frag = open("data/shaders/%s" % frag_name).read()
 
         self.shader.set_vertex_source(vert)
         self.shader.set_fragment_source(frag)
