@@ -624,6 +624,8 @@ class TransformationProperties(Gtk.Expander):
 
     def _selectionChangedCb(self, timeline):
         if self.timeline and len(self.timeline.selection.selected) > 0:
+            # choose last selected clip
+            # TODO: hide effects properties when multiple clips are selected
             for clip in self.timeline.selection.selected:
                 pass
 
@@ -635,6 +637,7 @@ class TransformationProperties(Gtk.Expander):
             if self.get_expanded():
                 self.update_effect()
         else:
+            # Deselect
             if self._selected_clip:
                 self._selected_clip = None
             self.effect = None
