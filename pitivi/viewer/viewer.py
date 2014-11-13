@@ -543,9 +543,6 @@ class ViewerWidget(Gtk.AspectFrame, Loggable):
         # so we need to flush the pipeline
         self.seeker.flush()
 
-    def set_transformation_properties(self, transformation_properties):
-            self.transformation_properties = transformation_properties
-
     def _currentStateCb(self, unused_pipeline, unused_state):
         pass
 

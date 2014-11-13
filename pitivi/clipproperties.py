@@ -556,31 +556,12 @@ class TransformationProperties(Gtk.Expander):
         self.show_all()
         self.connect('notify::expanded', self._expandedCb)
 
-    def _initButtons(self):
-        self.zoom_scale = self.builder.get_object("zoom_scale")
-        self.zoom_scale.connect("value-changed", self._zoomViewerCb)
-        clear_button = self.builder.get_object("clear_button")
-        clear_button.connect("clicked", self._defaultValuesCb)
-
-        self._getAndConnectToEffect("xpos_spinbtn", "tilt_x")
-        self._getAndConnectToEffect("ypos_spinbtn", "tilt_y")
-
-        self._getAndConnectToEffect("width_spinbtn", "scale_x")
-        self._getAndConnectToEffect("height_spinbtn", "scale_y")
-
-        self._getAndConnectToEffect("crop_left_spinbtn", "clip_left")
-        self._getAndConnectToEffect("crop_right_spinbtn", "clip_right")
-        self._getAndConnectToEffect("crop_top_spinbtn", "clip_top")
-        self._getAndConnectToEffect("crop_bottom_spinbtn", "clip_bottom")
-        self.connectSpinButtonsToFlush()
-
     def _zoomViewerCb(self, scale):
         self.app.gui.viewer.setZoom(scale.get_value())
 
     def update_effect(self):
         self.effect = self._findOrCreateEffect("gltransformation")
         self.app.sliderbox.element = self.effect
-        self.app.gui.viewer.internal.set_transformation_properties(self)
         # self.effect.freeze_notify()
 
     def _expandedCb(self, expander, params):
@@ -615,7 +596,6 @@ class TransformationProperties(Gtk.Expander):
         for clip_child in self._selected_clip.get_children(False):
             if isinstance(clip_child, GES.BaseEffect):
                 if name in clip_child.get_property("bin-description"):
-                    print("Effect %s found." % name)
                     effect = clip_child
         if not effect:
             effect = GES.Effect.new(bin_description=name)
