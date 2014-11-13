@@ -41,7 +41,7 @@ class Scene():
     def __init__(self):
         self.handles = {}
         self.graphics = {}
-        self.width, self.height = 0, 0
+        self.width, self.height = 1, 1
         self.init = False
         self.window = None
 
@@ -55,8 +55,6 @@ class Scene():
                 (2 * y - 1))
 
     def aspect(self):
-        if self.width == 0 or self.height == 0:
-            return 1
         return self.width / self.height
 
     def set_cursor(self, type):
