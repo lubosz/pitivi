@@ -189,8 +189,7 @@ class ViewerContainer(Gtk.VBox, Loggable):
 
         self.internal.drawing_area.scene.slider_box = self.app.sliderbox
         self.app.sliderbox.scene = self.internal.drawing_area.scene
-        self.internal.drawing_area.scene.app = self.appq
-        self.app.thesink = self.internal.drawing_area.sink
+        self.internal.drawing_area.scene.app = self.app
 
         # Transformation boxed DISABLED
         # self.internal.init_transformation_events()
