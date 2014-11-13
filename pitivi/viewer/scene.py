@@ -43,7 +43,7 @@ class Scene():
         self.graphics = {}
         self.width, self.height = 1, 1
         self.init = False
-        self.window = None
+        self.app = None
 
     def relative_position(self, event):
         # between 0 and 1
@@ -60,7 +60,7 @@ class Scene():
     def set_cursor(self, type):
         display = Gdk.Display.get_default()
         cursor = Gdk.Cursor.new_for_display(display, type)
-        # self.window.get_window().set_cursor(cursor)
+        self.app.gui.get_window().set_cursor(cursor)
 
     def reshape(self, sink, context, width, height):
         if width != 0 and height != 0:
