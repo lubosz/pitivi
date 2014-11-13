@@ -60,7 +60,7 @@ class Scene():
     def set_cursor(self, type):
         display = Gdk.Display.get_default()
         cursor = Gdk.Cursor.new_for_display(display, type)
-        self.window.get_window().set_cursor(cursor)
+        #self.window.get_window().set_cursor(cursor)
 
     def reshape(self, sink, context, width, height):
         self.width, self.height = width, height
