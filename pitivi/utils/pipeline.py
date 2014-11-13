@@ -178,7 +178,6 @@ class SimplePipeline(GObject.Object, Loggable):
         self._waiting_for_async_done = True
         self._next_seek = None
         self._timeout_async_id = 0
-        self.set_video_sink(Gst.ElementFactory.make("glimagesink", None))
 
     def set_video_sink(self, sink):
         # Create a cluttersink element used for display. Subclasses must connect
@@ -503,6 +502,7 @@ class AssetPipeline(SimplePipeline):
     def __init__(self, clip=None, name=None):
         bPipeline = Gst.ElementFactory.make("playbin", name)
         SimplePipeline.__init__(self, bPipeline)
+        self.set_video_sink(Gst.ElementFactory.make("glimagesink", None))
 
         self.clip = clip
         if self.clip:

@@ -58,8 +58,16 @@ class CairoGLSink(GstOverlaySink):
 
         self.gl_init = False
 
-        self.scene = TransformScene()
+        self.connect("button-press-event", self.on_button_press)
 
+        self.sink.handle_events(False)
+
+        self.transformation_element = None
+        self.pipeline = None
+        self.pipeline_position = 0
+
+    def init_scene(self, app):
+        self.scene = TransformScene()
         self.sink.connect("client-draw", self.scene.draw)
         self.sink.connect("client-reshape", self.scene.reshape)
 
@@ -68,11 +76,9 @@ class CairoGLSink(GstOverlaySink):
         self.connect("motion-notify-event", self.scene.on_motion)
         self.connect("scroll-event", self.scene.on_scroll)
 
-        self.sink.handle_events(False)
-
-        self.transformation_element = None
-        self.pipeline = None
-        self.pipeline_position = 0
+        self.scene.app = app
+        self.scene.slider_box = app.sliderbox
+        app.sliderbox.scene = self.scene
 
     def set_transformation_element(self, element):
         self.transformation_element = element

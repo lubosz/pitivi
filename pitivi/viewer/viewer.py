@@ -186,10 +186,7 @@ class ViewerContainer(Gtk.VBox, Loggable):
         """ Creates the Viewer GUI """
         # Drawing area
         self.internal = ViewerWidget(self.app.settings, realizedCb=self._videoRealizedCb)
-
-        self.internal.drawing_area.scene.slider_box = self.app.sliderbox
-        self.app.sliderbox.scene = self.internal.drawing_area.scene
-        self.internal.drawing_area.scene.app = self.app
+        self.internal.drawing_area.init_scene(self.app)
 
         # Transformation boxed DISABLED
         # self.internal.init_transformation_events()
