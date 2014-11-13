@@ -233,6 +233,8 @@ class TransformScene(Scene):
             handle.reposition(matrix, self.aspect())
             handle.size = size
 
+        self.app.project_manager.current_project.pipeline.flushSeek()
+
     def draw(self, sink, context, video_texture, w, h):
         if not self.init:
             return
