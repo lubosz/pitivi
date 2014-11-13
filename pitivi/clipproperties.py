@@ -19,8 +19,6 @@
 # Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 # Boston, MA 02110-1301, USA.
 
-import os
-
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import Pango
@@ -28,14 +26,9 @@ from gi.repository import GES
 
 from gettext import gettext as _
 
-from pitivi.configure import get_ui_dir
-
-from pitivi.dialogs.depsmanager import DepsManager
-
 from pitivi.utils.ui import EFFECT_TARGET_ENTRY
 from pitivi.utils.loggable import Loggable
 from pitivi.utils.ui import PADDING, SPACING
-from pitivi.utils.widgets import GstElementSettingsWidget
 
 from pitivi.effects import AUDIO_EFFECT, VIDEO_EFFECT, HIDDEN_EFFECTS, \
     EffectsPropertiesManager
@@ -76,7 +69,6 @@ class ClipProperties(Gtk.ScrolledWindow, Loggable):
         Loggable.__init__(self)
         self.app = app
         self.settings = app.settings
-        self._project = None
 
         self.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
@@ -93,11 +85,14 @@ class ClipProperties(Gtk.ScrolledWindow, Loggable):
         self.infobar_box.show()
         vbox.pack_start(self.infobar_box, False, True, 0)
 
-        # Transformation boxed DISABLED
-        # self.transformation_expander = TransformationProperties(instance, instance.action_log)
-        # self.transformation_expander.set_vexpand(False)
-        # vbox.pack_start(self.transformation_expander, False, True, 0)
+        # Transformation
+        transform_properties_manager = EffectsPropertiesManager(app)
+        self.transformation_expander = TransformationProperties(app, transform_properties_manager)
+        self.app.transformation_expander = self.transformation_expander
+        self.transformation_expander.set_vexpand(False)
+        vbox.pack_start(self.transformation_expander, False, True, 0)
 
+        # Effects
         effects_properties_manager = EffectsPropertiesManager(app)
         self.effect_expander = EffectProperties(app, effects_properties_manager, self)
         self.effect_expander.set_vexpand(False)
@@ -105,11 +100,7 @@ class ClipProperties(Gtk.ScrolledWindow, Loggable):
 
     def _setProject(self, project):
         self._project = project
-        if project:
-            self.effect_expander._connectTimelineSelection(self.app.gui.timeline_ui.timeline)
-            # Transformation boxed DISABLED
-            # if self.transformation_expander:
-            #     self.transformation_expander.timeline = self.app.gui.timeline_ui.timeline
+        self.update_timeline()
 
     def _getProject(self):
         return self._project
@@ -125,16 +116,11 @@ class ClipProperties(Gtk.ScrolledWindow, Loggable):
         self.infobar_box.pack_start(infobar, False, False, 0)
         return infobar
 
-    def _getTimeline(self):
-        return self._timeline
-
-    def _setTimeline(self, timeline):
-        self.effect_expander.timeline = timeline
-        # Transformation boxed DISABLED
-        # self.transformation_expander.timeline = timeline
-        self._timeline = timeline
-
-    timeline = property(_getTimeline, _setTimeline)
+    def update_timeline(self):
+        self.timeline = self.app.gui.timeline_ui.timeline
+        self.effect_expander._connectTimelineSelection(self.timeline)
+        self.effect_expander.timeline = self.timeline
+        self.transformation_expander.timeline = self.timeline
 
 
 class EffectProperties(Gtk.Expander, Loggable):
@@ -249,7 +235,6 @@ class EffectProperties(Gtk.Expander, Loggable):
         self._table.show_all()
         self._infobar.show_all()
         self._toolbar.hide()
-        self.hide()
 
         # Connect all the widget signals
         self.selection.connect("changed", self._treeviewSelectionChangedCb)
@@ -565,15 +550,11 @@ class TransformationProperties(Gtk.Expander):
         self.default_values = {}
         self.set_label(_("Transformation"))
 
-        self.builder = Gtk.Builder()
-        self.builder.add_from_file(os.path.join(get_ui_dir(),
-                                                "cliptransformation.ui"))
-
-        self.add(self.builder.get_object("transform_box"))
+        from pitivi.viewer.widgets import Transformation2DSliderBox
+        self.app.sliderbox = Transformation2DSliderBox()
+        self.add(self.app.sliderbox)
         self.show_all()
-        self._initButtons()
         self.connect('notify::expanded', self._expandedCb)
-        self.hide()
 
     def _initButtons(self):
         self.zoom_scale = self.builder.get_object("zoom_scale")
@@ -596,17 +577,15 @@ class TransformationProperties(Gtk.Expander):
     def _zoomViewerCb(self, scale):
         self.app.gui.viewer.setZoom(scale.get_value())
 
+    def update_effect(self):
+        self.effect = self._findOrCreateEffect("gltransformation")
+        self.app.sliderbox.element = self.effect
+        self.app.gui.viewer.internal.set_transformation_properties(self)
+        # self.effect.freeze_notify()
+
     def _expandedCb(self, expander, params):
         if self._selected_clip:
-            self.effect = self._findOrCreateEffect("frei0r-filter-scale0tilt")
-            self._updateSpinButtons()
-            self.set_expanded(self.get_expanded())
-            self._updateBoxVisibility()
-            self.zoom_scale.set_value(1.0)
-        else:
-            if self.get_expanded():
-                DepsManager(self.app)
-            self.set_expanded(False)
+            self.update_effect()
 
     def _defaultValuesCb(self, widget):
         self.disconnectSpinButtonsFromFlush()
@@ -628,58 +607,20 @@ class TransformationProperties(Gtk.Expander):
         for name, spinbtn in list(self.spin_buttons.items()):
             spinbtn.set_value(self.effect.get_property(name))
 
-    def _getAndConnectToEffect(self, widget_name, property_name):
-        """
-        Create a spinbutton widget and connect its signals to change property
-        values. While focused, disable the timeline actions' sensitivity.
-        """
-        spinbtn = self.builder.get_object(widget_name)
-        spinbtn.connect("output", self._onValueChangedCb, property_name)
-        self.spin_buttons[property_name] = spinbtn
-        self.default_values[property_name] = spinbtn.get_value()
-
-    def _onValueChangedCb(self, spinbtn, prop):
-        value = spinbtn.get_value()
-
-        # FIXME Why are we looking at the gnl object directly?
-        if value != self.default_values[prop] and not self.effect.get_gnlobject().props.active:
-            self.effect.get_gnlobject().props.active = True
-
-        if value != self.effect.get_property(prop):
-            self.action_log.begin("Transformation property change")
-            self.effect.set_property(prop, value)
-            self.action_log.commit()
-        box = self.app.gui.viewer.internal.box
-
-        # update box when values are changed in the spin boxes,
-        # so no point is selected
-        if box and box.clicked_point == 0:
-            box.update_from_effect(self.effect)
-
     def _flushPipeLineCb(self, widget):
         self.app.project_manager.current_project.pipeline.flushSeek()
 
-    def _findEffect(self, name):
-        for effect in self._selected_clip.get_children(False):
-            if isinstance(effect, GES.BaseEffect):
-                if name in effect.get_property("bin-description"):
-                    self.effect = effect
-                    return effect.get_element()
-
     def _findOrCreateEffect(self, name):
-        effect = self._findEffect(name)
+        effect = None
+        for clip_child in self._selected_clip.get_children(False):
+            if isinstance(clip_child, GES.BaseEffect):
+                if name in clip_child.get_property("bin-description"):
+                    print("Effect %s found." % name)
+                    effect = clip_child
         if not effect:
             effect = GES.Effect.new(bin_description=name)
             self._selected_clip.add(effect)
-            tracks = self.app.project_manager.current_project.timeline.get_tracks()
-            effect = self._findEffect(name)
-            # disable the effect on default
-            a = self.effect.get_gnlobject()
-            self.effect = list(list(a.elements())[0].elements())[1]
-            self.effect.get_gnlobject().props.active = False
-        self.app.gui.viewer.internal.set_transformation_properties(self)
-        effect.freeze_notify()
-        return self.effect
+        return effect
 
     def _selectionChangedCb(self, timeline):
         if self.timeline and len(self.timeline.selection.selected) > 0:
@@ -692,22 +633,22 @@ class TransformationProperties(Gtk.Expander):
 
             self.show()
             if self.get_expanded():
-                self.effect = self._findOrCreateEffect("frei0r-filter-scale0tilt")
-                self._updateSpinButtons()
+                self.update_effect()
         else:
             if self._selected_clip:
                 self._selected_clip = None
-                self.zoom_scale.set_value(1.0)
-                self.app.project_manager.current_project.pipeline.flushSeek()
             self.effect = None
             self.hide()
         self._updateBoxVisibility()
 
     def _updateBoxVisibility(self):
-        if self.get_expanded() and self._selected_clip:
-            self.app.gui.viewer.internal.show_box()
-        else:
-            self.app.gui.viewer.internal.hide_box()
+        pass
+        """
+        #if self.get_expanded() and self._selected_clip:
+        #    self.app.gui.viewer.internal.show_box()
+        #else:
+        #    self.app.gui.viewer.internal.hide_box()
+        """
 
     def _getTimeline(self):
         return self._timeline

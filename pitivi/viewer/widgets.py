@@ -59,7 +59,7 @@ class SliderBox(Gtk.Box):
 
     sliders = {}
 
-    def __init__(self, element, setup):
+    def __init__(self, setup):
         Gtk.Box.__init__(self)
 
         for name in sorted(setup):
@@ -77,8 +77,6 @@ class SliderBox(Gtk.Box):
 
         self.add(button)
 
-        self.element = element
-
     def reset_values(self, button):
         for slider in self.sliders.values():
             slider.reset()
@@ -86,10 +84,10 @@ class SliderBox(Gtk.Box):
 
 class Transformation2DSliderBox(SliderBox):
     def value_changed(self, scale, property):
-        self.element.set_property(property, scale.get_value())
+        self.element.set_child_property(property, scale.get_value())
         self.scene.reposition()
 
-    def __init__(self, element, scene):
+    def __init__(self):
         setup = {
             "rotation-z": (-720, 720, 1, 0),
             "translation-x": (-5, 5, 0.01, 0),
@@ -97,12 +95,10 @@ class Transformation2DSliderBox(SliderBox):
             "scale-x": (0, 4, 0.1, 1),
             "scale-y": (0, 4, 0.1, 1)
         }
-        SliderBox.__init__(self, element, setup)
-
-        self.scene = scene
+        SliderBox.__init__(self, setup)
 
     def mvp(self):
-        return matrix_to_array(self.element.get_property("mvp-matrix"))
+        return matrix_to_array(self.element.get_element().children[1].get_property("mvp-matrix"))
 
 
 class Transformation3DSliderBox(SliderBox):

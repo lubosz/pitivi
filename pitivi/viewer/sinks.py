@@ -23,19 +23,22 @@
 from gi.repository import GLib
 from gi.repository import Gtk
 from gi.repository import Gdk
-from gi.repository import Gst, GstGL, Graphene
+from gi.repository import Gst
+from gi.repository import GdkX11
+from gi.repository import GstVideo
 
 from pitivi.viewer.scene import *
 
 
 class GstOverlaySink(Gtk.DrawingArea):
-    def __init__(self, name, w, h):
+    def __init__(self, name):
         Gtk.DrawingArea.__init__(self)
-        from gi.repository import GdkX11, GstVideo
-
         self.sink = Gst.ElementFactory.make(name, None)
-        self.set_size_request(w, h)
-        self.set_double_buffered(True)
+        self.connect("size-allocate", self.on_size_allocate)
+
+    def on_size_allocate(self, sink, rectangle):
+        self.width = rectangle.width
+        self.height = rectangle.height
 
     def xid(self):
         return self.get_window().get_xid()
@@ -45,8 +48,8 @@ class GstOverlaySink(Gtk.DrawingArea):
 
 
 class CairoGLSink(GstOverlaySink):
-    def __init__(self, w, h):
-        GstOverlaySink.__init__(self, "glimagesink", w, h)
+    def __init__(self):
+        GstOverlaySink.__init__(self, "glimagesink")
 
         self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
@@ -66,9 +69,6 @@ class CairoGLSink(GstOverlaySink):
         self.connect("scroll-event", self.scene.on_scroll)
 
         self.sink.handle_events(False)
-
-        self.canvas_width, self.canvas_height = w, h
-        self.aspect = w / h
 
         self.transformation_element = None
         self.pipeline = None
@@ -92,6 +92,3 @@ class CairoGLSink(GstOverlaySink):
 
     def on_button_press(self, sink, event):
         self.scene.on_press(event)
-
-        if self.pipeline.get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.PAUSED:
-            GLib.timeout_add(90, self.flush_seek)

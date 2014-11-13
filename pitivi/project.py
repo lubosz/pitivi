@@ -934,6 +934,8 @@ class Project(Loggable, GES.Project):
         self._calculateNbLoadingAssets()
 
         self.pipeline = Pipeline()
+        self.app.gui.viewer.internal.drawing_area.pipeline = self.pipeline
+        self.app.thesink = self.pipeline.video_sink
         try:
             self.pipeline.set_timeline(self.timeline)
         except PipelineError as e:

@@ -186,6 +186,12 @@ class ViewerContainer(Gtk.VBox, Loggable):
         """ Creates the Viewer GUI """
         # Drawing area
         self.internal = ViewerWidget(self.app.settings, realizedCb=self._videoRealizedCb)
+
+        self.internal.drawing_area.scene.slider_box = self.app.sliderbox
+        self.app.sliderbox.scene = self.internal.drawing_area.scene
+        self.internal.drawing_area.scene.app = self.appq
+        self.app.thesink = self.internal.drawing_area.sink
+
         # Transformation boxed DISABLED
         # self.internal.init_transformation_events()
         self.pack_start(self.internal, True, True, 0)
@@ -811,13 +817,9 @@ class ViewerWidget(Gtk.AspectFrame, Loggable):
                                  ratio=4.0 / 3.0, obey_child=False)
         Loggable.__init__(self)
 
-        self.drawing_area = Gtk.DrawingArea()
-        self.drawing_area.set_double_buffered(False)
+        from pitivi.viewer.sinks import CairoGLSink
+        self.drawing_area = CairoGLSink()
         self.drawing_area.connect("draw", self._drawCb, None)
-        # We keep the ViewerWidget hidden initially, or the desktop wallpaper
-        # would show through the non-double-buffered widget!
-        if realizedCb:
-            self.drawing_area.connect("realize", realizedCb, self)
         self.add(self.drawing_area)
 
         self.drawing_area.show()
@@ -853,98 +855,16 @@ class ViewerWidget(Gtk.AspectFrame, Loggable):
         self._setting_ratio = True
         self.set_property("ratio", float(ratio))
 
-    def init_transformation_events(self):
-        self.fixme("TransformationBox disabled")
-        """
-        self.set_events(Gdk.EventMask.BUTTON_PRESS_MASK
-                        | Gdk.EventMask.BUTTON_RELEASE_MASK
-                        | Gdk.EventMask.POINTER_MOTION_MASK
-                        | Gdk.EventMask.POINTER_MOTION_HINT_MASK)
-        """
-
-    def show_box(self):
-        self.fixme("TransformationBox disabled")
-        """
-        if not self.box:
-            self.box = TransformationBox(self.settings)
-            self.box.init_size(self.area)
-            self._update_gradient()
-            self.connect("button-press-event", self.button_press_event)
-            self.connect("button-release-event", self.button_release_event)
-            self.connect("motion-notify-event", self.motion_notify_event)
-            self.connect("size-allocate", self._sizeCb)
-            self.box.set_transformation_properties(self.transformation_properties)
-            self.renderbox()
-        """
-
     def _sizeCb(self, unused_widget, unused_area):
         # The transformation box is cleared when using regular rendering
         # so we need to flush the pipeline
         self.seeker.flush()
 
-    def hide_box(self):
-        if self.box:
-            self.box = None
-            self.disconnect_by_func(self.button_press_event)
-            self.disconnect_by_func(self.button_release_event)
-            self.disconnect_by_func(self.motion_notify_event)
-            self.seeker.flush()
-            self.zoom = 1.0
-            if self.sink:
-                self.sink.set_render_rectangle(*self.area)
-
     def set_transformation_properties(self, transformation_properties):
             self.transformation_properties = transformation_properties
 
-    def _store_pixbuf(self):
-        """
-        When not playing, store a pixbuf of the current viewer image.
-        This will allow it to be restored for the transformation box.
-        """
-
-        if self.box and self.zoom != 1.0:
-            # The transformation box is active and dezoomed
-            # crop away 1 pixel border to avoid artefacts on the pixbuf
-
-            self.pixbuf = Gdk.pixbuf_get_from_window(self.get_window(),
-                self.box.area.x + 1, self.box.area.y + 1,
-                self.box.area.width - 2, self.box.area.height - 2)
-        else:
-            self.pixbuf = Gdk.pixbuf_get_from_window(self.get_window(),
-                0, 0,
-                self.get_window().get_width(),
-                self.get_window().get_height())
-
-        self.stored = True
-
-    def button_release_event(self, unused_widget, event):
-        if event.button == 1:
-            self.box.update_effect_properties()
-            self.box.release_point()
-            self.seeker.flush()
-            self.stored = False
-        return True
-
-    def button_press_event(self, unused_widget, event):
-        if event.button == 1:
-            self.box.select_point(event)
-        return True
-
     def _currentStateCb(self, unused_pipeline, unused_state):
-        self.fixme("TransformationBox disabled")
-        """
-        self.pipeline = pipeline
-        if state == Gst.State.PAUSED:
-            self._store_pixbuf()
-        self.renderbox()
-        """
-
-    def motion_notify_event(self, unused_widget, event):
-        if event.get_state() & Gdk.ModifierType.BUTTON1_MASK:
-            if self.box.transform(event):
-                if self.stored:
-                    self.renderbox()
-        return True
+        pass
 
     def do_expose_event(self, event):
         self.area = event.area
@@ -961,43 +881,6 @@ class ViewerWidget(Gtk.AspectFrame, Loggable):
                 area = self.area
             self.box.update_size(area)
             self.renderbox()
-
-    def _update_gradient(self):
-        self.gradient_background = cairo.LinearGradient(0, 0, 0, self.area.height)
-        self.gradient_background.add_color_stop_rgb(0.00, .1, .1, .1)
-        self.gradient_background.add_color_stop_rgb(0.50, .2, .2, .2)
-        self.gradient_background.add_color_stop_rgb(1.00, .5, .5, .5)
-
-    def renderbox(self):
-        if self.box:
-            cr = self.window.cairo_create()
-            cr.push_group()
-
-            if self.zoom != 1.0:
-                # draw some nice background for zoom out
-                cr.set_source(self.gradient_background)
-                cr.rectangle(0, 0, self.area.width, self.area.height)
-                cr.fill()
-
-                # translate the drawing of the zoomed out box
-                cr.translate(self.box.area.x, self.box.area.y)
-
-            # clear the drawingarea with the last known clean video frame
-            # translate when zoomed out
-            if self.pixbuf:
-                if self.box.area.width != self.pixbuf.get_width():
-                    scale = float(self.box.area.width) / float(self.pixbuf.get_width())
-                    cr.save()
-                    cr.scale(scale, scale)
-                cr.set_source_pixbuf(self.pixbuf, 0, 0)
-                cr.paint()
-                if self.box.area.width != self.pixbuf.get_width():
-                    cr.restore()
-
-            if self.pipeline and self.pipeline.getState() == Gst.State.PAUSED:
-                self.box.draw(cr)
-            cr.pop_group_to_source()
-            cr.paint()
 
 
 class PlayPauseButton(Gtk.Button, Loggable):
