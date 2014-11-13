@@ -58,8 +58,6 @@ class CairoGLSink(GstOverlaySink):
 
         self.gl_init = False
 
-        self.connect("button-press-event", self.on_button_press)
-
         self.sink.handle_events(False)
 
         self.transformation_element = None
@@ -71,7 +69,7 @@ class CairoGLSink(GstOverlaySink):
         self.sink.connect("client-draw", self.scene.draw)
         self.sink.connect("client-reshape", self.scene.reshape)
 
-        self.connect("button-press-event", self.on_button_press)
+        self.connect("button-press-event", self.scene.on_press)
         self.connect("button-release-event", self.scene.on_release)
         self.connect("motion-notify-event", self.scene.on_motion)
         self.connect("scroll-event", self.scene.on_scroll)
@@ -96,6 +94,3 @@ class CairoGLSink(GstOverlaySink):
             Gst.SeekFlags.FLUSH,
             self.pipeline_position)
         return True
-
-    def on_button_press(self, sink, event):
-        self.scene.on_press(event)

@@ -568,6 +568,11 @@ class TransformationProperties(Gtk.Expander):
         if self._selected_clip:
             self.update_effect()
 
+        if self.get_expanded():
+            self.app.gui.viewer.internal.drawing_area.scene.show()
+        else:
+            self.app.gui.viewer.internal.drawing_area.scene.hide()
+
     def _defaultValuesCb(self, widget):
         self.disconnectSpinButtonsFromFlush()
         for name, spinbtn in list(self.spin_buttons.items()):
@@ -615,6 +620,7 @@ class TransformationProperties(Gtk.Expander):
 
             self.show()
             if self.get_expanded():
+                self.app.gui.viewer.internal.drawing_area.scene.show()
                 self.update_effect()
         else:
             # Deselect
@@ -622,6 +628,7 @@ class TransformationProperties(Gtk.Expander):
                 self._selected_clip = None
             self.effect = None
             self.hide()
+            self.app.gui.viewer.internal.drawing_area.scene.hide()
         self._updateBoxVisibility()
 
     def _updateBoxVisibility(self):

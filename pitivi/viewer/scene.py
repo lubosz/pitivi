@@ -89,6 +89,7 @@ class HandleActor():
         self.initital_position = self.position
         self.drag = drag
         self.size = 1.0
+        self.hovered = False
 
     def is_clicked(self, click):
         vclick = Graphene.Vec2.alloc()
@@ -104,11 +105,11 @@ class HandleActor():
         return hovered
 
     def reposition(self, matrix, aspect):
-            vector = numpy.array([self.initital_position[0] * aspect,
-                                  self.initital_position[1], 0, 1])
-            vector_transformed = numpy.dot(vector, matrix)
+        vector = numpy.array([self.initital_position[0] * aspect,
+                              self.initital_position[1], 0, 1])
+        vector_transformed = numpy.dot(vector, matrix)
 
-            self.position = (vector_transformed[0], -vector_transformed[1])
+        self.position = (vector_transformed[0], -vector_transformed[1])
 
     def distance_to(self, actor):
         distance = array(self.position) - array(actor.position)
@@ -179,7 +180,9 @@ class TransformScene(Scene):
         self.box_actor = BoxActor(self.translate)
         self.selected = False
         self.slider_box = None
-        self.action = None
+        self.hidden = True
+        self.oldpos = None
+        self.action = self.translate
 
         self.zoom = 1.0
         self.set_zoom_matrix(self.zoom)
@@ -205,6 +208,16 @@ class TransformScene(Scene):
         self.selected = False
         # default
         self.set_cursor(Gdk.CursorType.ARROW)
+        self.reposition()
+
+    def show(self):
+        self.selected = True
+        self.hidden = False
+        self.reposition()
+
+    def hide(self):
+        self.hidden = True
+        self.deselect()
 
     def init_gl(self, context):
         Scene.init_gl(self, context)
@@ -303,6 +316,10 @@ class TransformScene(Scene):
         rotation.set((self.oldrot + self.get_rotation(event)) % 360)
 
     def translate(self, event):
+
+        if not self.oldpos:
+            return
+
         pos = array(self.relative_position(event))
 
         # drag cursor
@@ -321,7 +338,11 @@ class TransformScene(Scene):
         x.set(oldpos[0] + translation[0])
         y.set(oldpos[1] + translation[1])
 
-    def on_press(self, event):
+    def on_press(self, sink, event):
+
+        if self.hidden:
+            return
+
         # Right click
         if event.get_button()[1] == 3:
             self.deselect()
@@ -349,7 +370,13 @@ class TransformScene(Scene):
 
                 self.oldrot = self.slider_box.sliders["rotation-z"].get() - self.get_rotation(event)
 
+        self.reposition()
+
     def on_motion(self, sink, event):
+
+        if self.hidden:
+            return
+
         if not self.selected:
             return
 

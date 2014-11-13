@@ -70,9 +70,13 @@ class SliderBox(Gtk.Box):
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_size_request(300, 300)
 
-        image = Gtk.Image.new_from_stock("gtk-clear", Gtk.IconSize.BUTTON)
+        image = Gtk.Image()
+        image.set_from_icon_name("edit-clear-all-symbolic", Gtk.IconSize.MENU)
+
         button = Gtk.Button()
-        button.set_image(image)
+        button.add(image)
+        from gettext import gettext as _
+        button.set_tooltip_text(_("Reset to default value"))
         button.connect("clicked", self.reset_values)
 
         self.add(button)
