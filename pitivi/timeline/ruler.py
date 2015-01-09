@@ -176,6 +176,7 @@ class ScaleRuler(Gtk.DrawingArea, Zoomable, Loggable):
             self.pixbuf = None
 
         # Create a new buffer
+        self.height = height
         self.pixbuf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
 
         return False
@@ -184,19 +185,9 @@ class ScaleRuler(Gtk.DrawingArea, Zoomable, Loggable):
         if self.pixbuf is None:
             self.info('No buffer to paint')
             return False
-
-        pixbuf = self.pixbuf
-
-        # Draw on a temporary context and then copy everything.
-        drawing_context = cairo.Context(pixbuf)
-        self.drawBackground(drawing_context)
-        self.drawRuler(drawing_context)
-        self.drawPosition(drawing_context)
-        pixbuf.flush()
-
-        context.set_source_surface(self.pixbuf, 0.0, 0.0)
-        context.paint()
-
+        self.drawBackground(context)
+        self.drawRuler(context)
+        self.drawPosition(context)
         return False
 
     def do_button_press_event(self, event):
@@ -302,11 +293,10 @@ class ScaleRuler(Gtk.DrawingArea, Zoomable, Loggable):
     def _drawTick(self, context, paintpos, height_ratio):
         # We need to use 0.5 pixel offsets to get a sharp 1 px line in cairo
         paintpos = int(paintpos - 0.5) + 0.5
-        target_height = context.get_target().get_height()
-        y = int(target_height * (1 - height_ratio))
+        y = self.height * (1.0 - height_ratio)
         context.set_line_width(1)
         context.move_to(paintpos, y)
-        context.line_to(paintpos, target_height)
+        context.line_to(paintpos, self.height)
         context.close_path()
         context.stroke()
 
