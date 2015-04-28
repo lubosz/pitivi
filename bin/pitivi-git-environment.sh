@@ -496,6 +496,9 @@ if [ $ready_to_run == 1 ]; then
         else
           cp ~/.bashrc /tmp/ptvCustomPS1
           echo "export PS1=[ptv]\ \$PS1" >> /tmp/ptvCustomPS1
+          echo ". $PITIVI/gstreamer/data/completions/gst-launch-1.0" >> /tmp/ptvCustomPS1
+          echo ". $PITIVI/gstreamer/data/completions/gst-inspect-1.0" >> /tmp/ptvCustomPS1
+          echo ". $PITIVI/gst-editing-services/data/completions/ges-launch-1.0" >> /tmp/ptvCustomPS1
           /bin/bash --rcfile /tmp/ptvCustomPS1
         fi
       else
