@@ -412,6 +412,12 @@ class MoveScaleOverlay(Overlay):
         size = self.__get_size()
         return size[0] / size[1]
 
+    def set_hover_cursor(self):
+        if self._is_selected():
+            self.stack.set_cursor("grab")
+        else:
+            self.stack.set_cursor("pointer")
+
     def on_button_press(self):
         disconnectAllByFunc(self._source, self.__source_property_changed_cb)
         self.click_source_position = self.__get_source_position()
@@ -443,7 +449,7 @@ class MoveScaleOverlay(Overlay):
             self.__clicked_handle.on_release()
             self.__clicked_handle = None
         elif self._is_hovered():
-            self.stack.set_cursor("grab")
+            self.set_hover_cursor()
 
         self._source.connect("deep-notify", self.__source_property_changed_cb)
         self.queue_draw()
@@ -497,7 +503,7 @@ class MoveScaleOverlay(Overlay):
         self.__box_hovered = False
         if (source < cursor).all() and (cursor < source + self.__get_size()).all():
             self.__box_hovered = True
-            self.stack.set_cursor("grab")
+            self.set_hover_cursor()
             self._hover()
         else:
             self.__box_hovered = False
